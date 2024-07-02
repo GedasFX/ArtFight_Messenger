@@ -46,9 +46,17 @@ async function fetchProfile(name) {
   );
 
   return {
-    attacks: attacks.map((x, i) => ({ url: new URL(x.attribs.href), thumbnail: new URL(attacksImg[i].attribs.src) })),
+    attacks: attacks.map((x, i) => ({
+      url: new URL(x.attribs.href),
+      thumbnail: new URL(attacksImg[i].attribs.src),
+      title: attacksImg[i].attribs.title,
+    })),
     attacksCount: attacksCount,
-    defenses: defenses.map((x, i) => ({ url: new URL(x.attribs.href), thumbnail: new URL(defensesImg[i].attribs.src) })),
+    defenses: defenses.map((x, i) => ({
+      url: new URL(x.attribs.href),
+      thumbnail: new URL(defensesImg[i].attribs.src),
+      title: defensesImg[i].attribs.title,
+    })),
     defensesCount: defensesCount,
   };
 }

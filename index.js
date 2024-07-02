@@ -12,6 +12,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * @param {string} name
  * @param {import("./stateManager").AppState} state
  * @param {Set<string>} currentBatch
+ * @returns {Promise<{ url: URL; thumbnail: URL; }[]>}
  */
 async function getUserChanges(name, state, currentBatch) {
   const profile = await fetchProfile(name);
@@ -53,12 +54,12 @@ async function getUserChanges(name, state, currentBatch) {
 
 /**
  *
- * @param {{ url: URL, thumbnail: URL }[]} attacks
+ * @param {{ url: URL; thumbnail: URL; title: string }[]} attacks
  */
 async function runAttacks(attacks) {
   for (const attack of attacks) {
     const embed = new EmbedBuilder()
-      .setTitle("Radars detected a new attack!")
+      .setTitle(attack.title)
       .setURL(attack.url.toString())
       .setThumbnail(`${attack.thumbnail.origin}${attack.thumbnail.pathname}`);
     await client.send({ embeds: [embed], flags: [MessageFlags.SuppressNotifications] });
@@ -73,7 +74,8 @@ async function main() {
     const currentBatch = new Set();
     for (const user of participants) {
       console.debug(`${new Date().toISOString()} Processing user ${user}.`);
-      runAttacks(await getUserChanges(user, state, currentBatch));
+      const attacks = await getUserChanges(user, state, currentBatch);
+      runAttacks(attacks);
       await sleep(200); // Let's not DDoS AF
     }
 
