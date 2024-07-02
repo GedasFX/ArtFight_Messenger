@@ -11,8 +11,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  *
  * @param {string} name
  * @param {import("./stateManager").AppState} state
+ * @param {Set<string>} currentBatch
  */
-async function getUserChanges(name, state) {
+async function getUserChanges(name, state, currentBatch) {
   const profile = await fetchProfile(name);
 
   const previousState = state.attacks[name];
@@ -39,7 +40,15 @@ async function getUserChanges(name, state) {
     defensesCount: profile.defensesCount,
   };
 
-  return result;
+  const newResult = [];
+  result.forEach((r) => {
+    const previousSize = currentBatch.size;
+    currentBatch.add(r.url.toString());
+
+    if (currentBatch.size > previousSize) newResult.push(r);
+  });
+
+  return newResult;
 }
 
 /**
@@ -61,9 +70,10 @@ async function main() {
     console.info(`${new Date().toISOString()} Starting New Cycle!`);
     const state = getState();
 
+    const currentBatch = new Set();
     for (const user of participants) {
       console.debug(`${new Date().toISOString()} Processing user ${user}.`);
-      runAttacks(await getUserChanges(user, state));
+      runAttacks(await getUserChanges(user, state, currentBatch));
       await sleep(200); // Let's not DDoS AF
     }
 
