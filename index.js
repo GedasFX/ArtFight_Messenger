@@ -1,7 +1,7 @@
 const { fetchProfile } = require("./dataFetcher");
 const { getState, setState } = require("./stateManager");
 const { participants, sleepDuration, webhookUrl } = require("./config.json");
-const { WebhookClient, EmbedBuilder } = require("discord.js");
+const { WebhookClient, EmbedBuilder, MessageFlags } = require("discord.js");
 
 const client = new WebhookClient({ url: webhookUrl });
 
@@ -61,7 +61,7 @@ async function runAttacks(attacks) {
       .setTitle("Radars detected a new attack!")
       .setURL(attack.url.toString())
       .setThumbnail(`${attack.thumbnail.origin}${attack.thumbnail.pathname}`);
-    await client.send({ embeds: [embed] });
+    await client.send({ embeds: [embed], flags: [MessageFlags.SuppressNotifications] });
   }
 }
 
